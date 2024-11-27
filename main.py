@@ -5,7 +5,7 @@ import uvicorn
 
 app = FastAPI()
 
-app.mount("/templates", StaticFiles(directory="templates"), name="templates")
+app.mount("/", StaticFiles(directory="templates"), html=True)
 
 class User(BaseModel):
     username: str
