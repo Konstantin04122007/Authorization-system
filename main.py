@@ -1,11 +1,11 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
+from db.db_env import Session
 import uvicorn
 
 app = FastAPI()
 
-app.mount("/", StaticFiles(directory="templates"), html=True)
 
 class User(BaseModel):
     username: str
@@ -14,9 +14,12 @@ class User(BaseModel):
     password: str
 
 
+app.mount("/", StaticFiles(directory="templates", html=True))
+
+
 @app.post("/users/")
 async def create_user(user: User):
-    db = SessionLocal()
+    db = Session()
     db_user = User(username=user.username, email=user.email, phone=user.phone, password=user.password)
 
     try:
@@ -32,3 +35,4 @@ async def create_user(user: User):
 
 if __name__ == '__main__':
     uvicorn.run(app, host='localhost')
+    
