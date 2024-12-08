@@ -1,10 +1,21 @@
-from fastapi import FastAPI, HTTPException
-from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
-from db.db_env import Session
 import uvicorn
+from fastapi import FastAPI
+from pydantic import BaseModel
+from starlette.middleware.cors import CORSMiddleware
+from starlette.responses import FileResponse
+from starlette.staticfiles import StaticFiles
+
 
 app = FastAPI()
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 class User(BaseModel):
@@ -12,27 +23,17 @@ class User(BaseModel):
     email: str
     phone: int
     password: str
-
-
-app.mount("/", StaticFiles(directory="templates", html=True))
+    country: str
 
 
 @app.post("/users/")
-async def create_user(user: User):
-    db = Session()
-    db_user = User(username=user.username, email=user.email, phone=user.phone, password=user.password)
+async def get_data(user: User):
+    return FileResponse("templates/users.html")
 
-    try:
-        db.add(db_user)
-        db.commit()
-        db.refresh(db_user)
-        return db_user
-    except Exception as e:
-        db.rollback()
-        raise HTTPException(status_code=400, detail="User already exists")
-    finally:
-        db.close()
+
+app.mount("/users", app)
+app.mount("/", StaticFiles(directory="templates", html=True))
+
 
 if __name__ == '__main__':
-    uvicorn.run(app, host='localhost')
-    
+    uvicorn.run(app, host='localhost', port=8000)
