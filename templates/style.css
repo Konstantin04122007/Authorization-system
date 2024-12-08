@@ -17,6 +17,10 @@ h2 {
     margin-bottom: 20px;
     text-align: center;
 }
+p {
+    margin-bottom: 20px;
+    text-align: center;
+}
 input[type="text"], input[type="password"], input[type="email"], input[type="tel"]{
     width: 95%;
     padding: 10px;
